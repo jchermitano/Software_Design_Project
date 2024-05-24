@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Watermelon Ripeness Result</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/parse/3.3.0/parse.min.js"></script>
+  <style>
+    .chart-container {
+      display: flex;
+      justify-content: space-around;
+      width: 23%;
+      margin-top: -400px;
+    }
+
+    body {
+      background-image: url('wow.jpg');
+      background-repeat: repeat;
+      background-position: top left;
+      background-color: white;
+      font-family: Arial, sans-serif;
+      font-weight: bold;
+      color: #ffffff;
+      margin-left: 50px;
+    }
+
+    label {
+      display: block;
+      margin-top: 1rem;
+    }
+
+    select {
+      background-color: #6b6969;
+      color: #ffffff;
+      font-size: 16px;
+      font-family: Arial, sans-serif;
+      padding: 5px;
+      margin-left: 10rem;
+      border-radius: 150px;
+    }
+    
+    button[type="submit"] {
+      background-color: #40A578;
+      border-color: #9DDE8B;
+      border-width: 50px;
+      color: white;
+      font-size: 16px;
+      font-weight: bold;
+      padding: 12px 20px;
+      border: 2px solid #9DDE8B;
+      border-radius: 150px;
+      cursor: pointer;
+      margin-left: 5rem;
+      margin-top: 1rem;
+    }
+
+    .table-container {
+      height: 600px;
+      overflow-y: auto;
+      justify-content: center;
+    }
+
+    form {
+      flex-direction: column;
+      margin-top: 2rem;
+    }
+
+    table {
+      border-collapse: collapse;
+      width: 50%;
+      margin-left: 900px;
+      color: #000000;
+    }
+
+    th, td {
+      border: 3px solid #9DDE8B;
+      padding: 8px;
+      text-align: left;
+    }
+
+    th {
+      background-color: #40A578;
+    }
+
+    tr {
+      background-color: #9DDE8B;
+    }
+  </style>
+</head>
+<body>
+  <h1>Watermelon Ripeness Result</h1>
+  <form id="watermelon-form">
+    <div>
+      <label for="variety">Variety:</label>
+      <select id="variety">
+        <option value="">Choose Variety of Watermelon</option>
+        <option value="Crimson">Crimson</option>
+        <option value="Sugar Baby">Sugar Baby</option>
+      </select>
+    </div>
+    <div>
+      <label for="ripeness">Ripeness:</label>
+      <select id="ripeness">
+        <option value="">Choose Ripeness of Watermelon</option>
+        <option value="Unripe">Unripe</option>
+        <option value="Ripe">Ripe</option>
+        <option value="Overripe">Overripe</option>
+      </select>
+    </div>
+    <button type="submit">Submit</button>
+  </form>
+  <div class="table-container">
+    <table id="watermelon-table">
+      <thead>
+        <tr>
+          <th>Count</th>
+          <th>Variety</th>
+          <th>Ripeness</th>
+          <th>Date and Time</th>
+        </tr>
+      </thead>
+      <tbody>
+        <script>
+          document.getElementById('watermelon-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+      
+            const variety = document.getElementById('variety').value;
+            const ripeness = document.getElementById('ripeness').value;
+      
+            if (variety === 'null' || ripeness === 'null') {
+              alert('Please select both variety and ripeness');
+              return;
+            }
+      
+            const currentDate = new Date().toLocaleString();
+      
+            const table = document.getElementById('watermelon-table');
+            const row = document.createElement('tr');
+            const countCell = document.createElement('td');
+            const varietyCell = document.createElement('td');
+            const ripenessCell = document.createElement('td');
+            const dateTimeCell = document.createElement('td');
+      
+            countCell.textContent = table.rows.length;
+            varietyCell.textContent = variety;
+            ripenessCell.textContent = ripeness;
+            dateTimeCell.textContent = currentDate;
+      
+            row.appendChild(countCell);
+            row.appendChild(varietyCell);
+            row.appendChild(ripenessCell);
+            row.appendChild(dateTimeCell);
+      
+            if (ripeness === 'Ripe') {
+              row.classList.add('added');
+            }
+      
+            table.appendChild(row);
+      
+            // Firebase database code
+            const dataRef = ref(db, 'Watermelon');
+            const newDataRef = push(dataRef);
+      
+            set(newDataRef, {
+              variety: variety,
+              ripeness: ripeness,
+              timestamp: currentDate
+            }).catch(error => {
+              console.error("Error writing new data to Firebase Database", error);
+            });
+          });
+        </script>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="chart-container">
+    <canvas id="varietyChart"></canvas>
+    <canvas id="ripenessChart"></canvas>
+  </div>
+
+  <script>
+    // Initialize Parse
+    Parse.initialize("bfeFgJcvr9SewZFLeytBS6U56W3kOrLc3Cd4VBOm", "FlTnWSq7RHsCmqQru8wQ1voLirZzkalDQtSprccu");
+    Parse.serverURL = 'https://parseapi.back4app.com/';
+   
+    // Event listener for form submission
+    document.getElementById('watermelon-form').addEventListener('submit', handleFormSubmission);
+
+    async function handleFormSubmission(event) {
+      event.preventDefault();
+      
+      const variety = document.getElementById('variety').value;
+      const ripeness = document.getElementById('ripeness').value;
+    
+      if (!variety || !ripeness) {
+        alert('Please select both variety and ripeness');
+        return;
+      }
+
+      const Watermelon = Parse.Object.extend('Watermelon');
+      const watermelon = new Watermelon();
+    
+      watermelon.set('variety', variety);
+      watermelon.set('ripeness', ripeness);
+      watermelon.set('timestamp', new Date().toISOString());
+    
+      try {
+        const result = await watermelon.save();
+        console.log('Watermelon created', result);
+        fetchAndDisplayCharts();
+      } catch (error) {
+        console.error('Error while creating Watermelon: ', error);
+      }
+    }
+
+    async function fetchAndDisplayCharts() {
+      const Watermelon = Parse.Object.extend('Watermelon');
+      const query = new Parse.Query(Watermelon);
+
+      try {
+        const results = await query.find();
+        const varietyCounts = { 'Crimson': 0, 'Sugar Baby': 0 };
+        const ripenessCounts = { 'Unripe': 0, 'Ripe': 0, 'Overripe': 0 };
+
+        // Aggregate data
+        results.forEach((result) => {
+          const variety = result.get('variety');
+          const ripeness = result.get('ripeness');
+
+          if (varietyCounts.hasOwnProperty(variety)) {
+            varietyCounts[variety]++;
+          }
+          if (ripenessCounts.hasOwnProperty(ripeness)) {
+            ripenessCounts[ripeness]++;
+          }
+        });
+
+        createVarietyChart(Object.values(varietyCounts));
+        createRipenessChart(Object.values(ripenessCounts));
+      } catch (error) {
+        console.error('Error while fetching data: ', error);
+      }
+    }
+    
+    function createVarietyChart(data) {
+      const varietyCtx = document.getElementById('varietyChart').getContext('2d');
+      new Chart(varietyCtx, {
+        type: 'pie',
+        data: {
+          labels: ['Crimson', 'Sugar Baby'],
+          datasets: [{
+            label: 'Watermelon Variety',
+            data: data, // Dynamically-added data
+            backgroundColor: ['rgba(255, 99, 132, 2)', 'rgba(54, 162, 235, 2)'],
+            borderColor: ['rgba(255, 99, 132, 1)', 'rgba(54, 162, 235, 1)'],
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: {
+              position: 'top',
+            }
+          }
+        }
+      });
+    }
+
+    function createRipenessChart(data) {
+      const ripenessCtx = document.getElementById('ripenessChart').getContext('2d');
+      new Chart(ripenessCtx, {
+        type: 'pie',
+        data: {
+          labels: ['Unripe', 'Ripe', 'Overripe'],
+          datasets: [{
+            label: 'Watermelon Ripeness',
+            data: data, // Dynamically-added data
+            backgroundColor: ['rgba(255, 99, 132, 1)', 'rgba(54, 162, 235, 1)', 'rgba(255, 206, 86, 1)'],
+            borderColor: ['rgba(255, 99, 132, 1)', 'rgba(54, 162, 235, 1)', 'rgba(255, 206, 86, 1)'],
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: {
+              position: 'top',
+            }
+          }
+        }
+      });
+    }
+
+    // Call fetchAndDisplayCharts to load and display the charts when the page is loaded
+    fetchAndDisplayCharts();
+  </script>
+  <script>
+    // Initial Setup for Parse
+    Parse.initialize("bfeFgJcvr9SewZFLeytBS6U56W3kOrLc3Cd4VBOm", "FlTnWSq7RHsCmqQru8wQ1voLirZzkalDQtSprccu");
+    Parse.serverURL = 'https://parseapi.back4app.com/';
+
+    // Function to load watermelon data from Parse and display it in the table
+    async function loadWatermelonData() {
+      const Watermelon = Parse.Object.extend('Watermelon');
+      const query = new Parse.Query(Watermelon);
+
+      try {
+        const results = await query.find();
+        const tableBody = document.getElementById('watermelon-table').getElementsByTagName('tbody')[0];
+        tableBody.innerHTML = ''; // Clear existing table contents
+        
+        results.forEach((watermelon, index) => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `<td>${index + 1}</td>
+                          <td>${watermelon.get('variety')}</td>
+                          <td>${watermelon.get('ripeness')}</td>
+                          <td>${new Date(watermelon.get('timestamp')).toLocaleString()}</td>`;
+          tableBody.appendChild(tr);
+        });
+      } catch (error) {
+        console.error('Error while fetching watermelons: ', error);
+      }
+    }
+
+    loadWatermelonData(); // Call this function on page load to populate the table with data from Parse
+
+    // ...the rest of your script for handling form submissions and chart updates...
+  </script>
+</body>
+</html>
