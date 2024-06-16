@@ -6,92 +6,14 @@
   <title>Watermelon Ripeness Result</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/parse/3.3.0/parse.min.js"></script>
-  <style>
-    .chart-container {
-      display: flex;
-      justify-content: space-around;
-      width: 23%;
-      margin-top: -400px;
-    }
-
-    body {
-      background-image: url('wow.jpg');
-      background-repeat: repeat;
-      background-position: top left;
-      background-color: white;
-      font-family: Arial, sans-serif;
-      font-weight: bold;
-      color: #ffffff;
-      margin-left: 50px;
-    }
-
-    label {
-      display: block;
-      margin-top: 1rem;
-    }
-
-    select {
-      background-color: #6b6969;
-      color: #ffffff;
-      font-size: 16px;
-      font-family: Arial, sans-serif;
-      padding: 5px;
-      margin-left: 10rem;
-      border-radius: 150px;
-    }
-    
-    button[type="submit"] {
-      background-color: #40A578;
-      border-color: #9DDE8B;
-      border-width: 50px;
-      color: white;
-      font-size: 16px;
-      font-weight: bold;
-      padding: 12px 20px;
-      border: 2px solid #9DDE8B;
-      border-radius: 150px;
-      cursor: pointer;
-      margin-left: 5rem;
-      margin-top: 1rem;
-    }
-
-    .table-container {
-      height: 600px;
-      overflow-y: auto;
-      justify-content: center;
-    }
-
-    form {
-      flex-direction: column;
-      margin-top: 2rem;
-    }
-
-    table {
-      border-collapse: collapse;
-      width: 50%;
-      margin-left: 900px;
-      color: #000000;
-    }
-
-    th, td {
-      border: 3px solid #9DDE8B;
-      padding: 8px;
-      text-align: left;
-    }
-
-    th {
-      background-color: #40A578;
-    }
-
-    tr {
-      background-color: #9DDE8B;
-    }
-  </style>
+  <link rel="stylesheet" type="text/css" href="style.css"> 
 </head>
 <body>
-  <h1>Watermelon Ripeness Result</h1>
+  <header>
+    <a href="index.html" class="reload">Watermelon Ripeness Result</a>
+  </header>
   <form id="watermelon-form">
-    <div>
+    <div class="flex-direction">
       <label for="variety">Variety:</label>
       <select id="variety">
         <option value="">Choose Variety of Watermelon</option>
@@ -99,7 +21,7 @@
         <option value="Sugar Baby">Sugar Baby</option>
       </select>
     </div>
-    <div>
+    <div class="flex-direction">
       <label for="ripeness">Ripeness:</label>
       <select id="ripeness">
         <option value="">Choose Ripeness of Watermelon</option>
@@ -132,7 +54,7 @@
               alert('Please select both variety and ripeness');
               return;
             }
-      
+            
             const currentDate = new Date().toLocaleString();
       
             const table = document.getElementById('watermelon-table');
@@ -158,7 +80,6 @@
       
             table.appendChild(row);
       
-            // Firebase database code
             const dataRef = ref(db, 'Watermelon');
             const newDataRef = push(dataRef);
       
@@ -181,39 +102,39 @@
   </div>
 
   <script>
-    // Initialize Parse
     Parse.initialize("bfeFgJcvr9SewZFLeytBS6U56W3kOrLc3Cd4VBOm", "FlTnWSq7RHsCmqQru8wQ1voLirZzkalDQtSprccu");
     Parse.serverURL = 'https://parseapi.back4app.com/';
    
-    // Event listener for form submission
     document.getElementById('watermelon-form').addEventListener('submit', handleFormSubmission);
 
     async function handleFormSubmission(event) {
-      event.preventDefault();
-      
-      const variety = document.getElementById('variety').value;
-      const ripeness = document.getElementById('ripeness').value;
-    
-      if (!variety || !ripeness) {
-        alert('Please select both variety and ripeness');
-        return;
-      }
+  event.preventDefault();
+  
+  const variety = document.getElementById('variety').value;
+  const ripeness = document.getElementById('ripeness').value;
+  
+  if (!variety ||!ripeness) {
+    alert('Please select both variety and ripeness');
+    return;
+  }
 
-      const Watermelon = Parse.Object.extend('Watermelon');
-      const watermelon = new Watermelon();
-    
-      watermelon.set('variety', variety);
-      watermelon.set('ripeness', ripeness);
-      watermelon.set('timestamp', new Date().toISOString());
-    
-      try {
-        const result = await watermelon.save();
-        console.log('Watermelon created', result);
-        fetchAndDisplayCharts();
-      } catch (error) {
-        console.error('Error while creating Watermelon: ', error);
-      }
-    }
+  const Watermelon = Parse.Object.extend('Watermelon');
+  const watermelon = new Watermelon();
+  
+  watermelon.set('variety', variety);
+  watermelon.set('ripeness', ripeness);
+  watermelon.set('timestamp', new Date().toISOString());
+  
+  try {
+    const result = await watermelon.save();
+    console.log('Watermelon created', result);
+    fetchAndDisplayCharts();
+    document.getElementById('variety').value = '';
+    document.getElementById('ripeness').value = '';
+  } catch (error) {
+    console.error('Error while creating Watermelon: ', error);
+  }
+}
 
     async function fetchAndDisplayCharts() {
       const Watermelon = Parse.Object.extend('Watermelon');
@@ -224,7 +145,6 @@
         const varietyCounts = { 'Crimson': 0, 'Sugar Baby': 0 };
         const ripenessCounts = { 'Unripe': 0, 'Ripe': 0, 'Overripe': 0 };
 
-        // Aggregate data
         results.forEach((result) => {
           const variety = result.get('variety');
           const ripeness = result.get('ripeness');
@@ -252,7 +172,7 @@
           labels: ['Crimson', 'Sugar Baby'],
           datasets: [{
             label: 'Watermelon Variety',
-            data: data, // Dynamically-added data
+            data: data, 
             backgroundColor: ['rgba(255, 99, 132, 2)', 'rgba(54, 162, 235, 2)'],
             borderColor: ['rgba(255, 99, 132, 1)', 'rgba(54, 162, 235, 1)'],
             borderWidth: 1
@@ -277,7 +197,7 @@
           labels: ['Unripe', 'Ripe', 'Overripe'],
           datasets: [{
             label: 'Watermelon Ripeness',
-            data: data, // Dynamically-added data
+            data: data, 
             backgroundColor: ['rgba(255, 99, 132, 1)', 'rgba(54, 162, 235, 1)', 'rgba(255, 206, 86, 1)'],
             borderColor: ['rgba(255, 99, 132, 1)', 'rgba(54, 162, 235, 1)', 'rgba(255, 206, 86, 1)'],
             borderWidth: 1
@@ -294,15 +214,139 @@
       });
     }
 
-    // Call fetchAndDisplayCharts to load and display the charts when the page is loaded
     fetchAndDisplayCharts();
   </script>
+
+  <button type="lrnMR" id="myBtn">Learn More</button>
+
+<!-- The Modal -->
+    <div id="myModal" class="modal">
+
+  <!-- Modal content -->
+      <div class="modal-content">
+        <span class="close"></span>
+
+        <p class="modal-heading">Variety of Watermelon</p>
+      <div class="modal-content1">
+      <p style="border-width: 10cm; 
+      border-color: #000000;
+      color: #000000;
+      width: 100%;
+      text-align: center;
+      font-size: 180%;
+      ">Sugar Baby Watermelon</p>
+      <div class="image-container">
+        <img src="sugar-baby.jpg" alt="Sugar Baby Watermelon">
+      </div>
+      <div class="description-container">
+        <p>A Sugar Baby watermelon is a small, round variety of watermelon known for its sweet, juicy red flesh and thin, dark green rind. Typically weighing between 6 to 12 pounds, this variety matures quickly, making it a popular choice for home gardeners and farmers. Its compact size and sweetness make it perfect for personal consumption and easy to handle, fitting well in refrigerators and on picnic tables.</p>
+      </div>
+      </div>
+
+      <div class="modal-content1">
+      <p style="border-width: 10cm;
+      border-color: #000000;
+      color: #000000;
+      width: 100%;
+      text-align: center;
+      font-size: 180%;
+      ">Crimson Watermelon</p>
+      <div class="image-container">
+        <img src="crimson.jpg" alt="Crimson Watermelon">
+      </div>
+      <div class="description-container">
+        <p>Crimson watermelon is a popular cultivar known for its vibrant red flesh, which is exceptionally sweet and juicy. It is characterized by its crisp texture and refreshing taste, making it a favorite choice for summer picnics, barbecues, and gatherings. The fruit typically has black seeds that are edible or sometimes seedless varieties are available. Crimson watermelons are prized not only for their flavor but also for their high water content, which helps quench thirst and hydrate the body. They are often enjoyed sliced into wedges or cubes, served chilled for optimal refreshment. In addition to being a delicious treat on its own, crimson watermelon is a versatile ingredient in various recipes, including salads, smoothies, and desserts, adding a burst of color and sweetness to culinary creations.</p>
+      </div>
+      </div>
+
+        <p class="modal-heading">Ripeness of Watermelon</p>
+
+          <div class="modal-content1">
+            <p style="border-width: 10cm;
+            border-color: #000000;
+            color: #000000;
+            width: 100%;
+            text-align: center;
+            font-size: 180%;
+            ">Unripe</p>
+            <div class="image-container">
+              <img src="unripe.jpg" alt="Crimson Watermelon">
+            </div>
+            <div class="description-container">
+              <p>Unripe watermelon refers to a stage in its growth where the fruit has not yet fully developed and matured. At this stage, the watermelon may have a lighter green color and the rind can be harder and less textured compared to a ripe one. The flesh inside may be pale pink or even white, and it lacks the sweet and juicy flavor associated with ripe watermelon. Unripe watermelon can be less pleasant to eat as it tends to be more bland and sometimes slightly bitter. It's important to allow watermelons to ripen fully before consuming them to enjoy their optimal flavor and texture.</p>
+            </div>
+            </div>
+            <div class="modal-content1">
+          <p style="border-width: 10cm;
+          border-color: #000000;
+          color: #000000;
+          width: 100%;
+          text-align: center;
+          font-size: 180%;
+          ">Ripe</p>
+          <div class="image-container">
+            <img src="ripe.jpg" alt="Crimson Watermelon">
+          </div>
+          <div class="description-container">
+            <p>Ripe watermelon refers to a stage in the fruit's development where it has reached optimal maturity and sweetness for consumption. It is characterized by a deep green color on the outside with distinct dark green stripes or spots, depending on the variety. When ripe, the flesh inside turns a vibrant red or sometimes yellow, and it becomes juicy and sweet, offering a refreshing taste that is synonymous with summertime. Ripe watermelon is typically enjoyed fresh, sliced into wedges or cubes, and is a popular choice for picnics, barbecues, and as a hydrating snack on hot days. Choosing a ripe watermelon involves looking for signs like a hollow sound when tapped, a slightly rough texture on the rind, and a sweet aroma.</p>
+          </div>
+          </div>
+          
+            <div class="modal-content1">
+              <p style="border-width: 10cm;
+              border-color: #000000;
+              color: #000000;
+              width: 100%;
+              text-align: center;
+              font-size: 180%;
+              ">Overripe</p>
+              <div class="image-container">
+                <img src="overripe.png" alt="Crimson Watermelon">
+              </div>
+              <div class="description-container">
+                <p>Overripe watermelon refers to a stage where the fruit has passed its peak of freshness and sweetness, becoming overly mature and possibly starting to deteriorate. Signs of an overripe watermelon include a rind that may appear overly dull or even beginning to soften, sometimes with yellow patches or spots. The flesh inside can become mushy, excessively juicy, and may lose its firm texture. Overripe watermelon can taste overly sweet or fermented, and the flavor may not be as enjoyable as that of a ripe fruit. It's generally best to consume watermelon when it is at its peak ripeness to fully enjoy its refreshing taste and texture.</p>
+              </div>
+              </div>
+  </div>
+
   <script>
-    // Initial Setup for Parse
+    var modal = document.getElementById("myModal");
+    
+    var btn = document.getElementById("myBtn");
+    
+    var span = document.getElementsByClassName("close")[0];
+    
+    btn.onclick = function() {
+      modal.style.display = "block";
+    }
+    
+    span.onclick = function() {
+      modal.style.display = "none";
+    }
+    
+    window.onclick = function(event) {
+      if (event.target == modal) {
+        modal.style.display = "none";
+      }
+    }
+    </script>
+    <script>
+      document.querySelector('.scrollToTop').addEventListener('click', function() {
+        window.scrollTo({
+          top: 0,
+          behavior: 'smooth'
+        });
+      });
+      </script>
+  <script>
+    function reload() {
+            window.location.href = 'index.html';
+        }
+  </script>
+  <script>
     Parse.initialize("bfeFgJcvr9SewZFLeytBS6U56W3kOrLc3Cd4VBOm", "FlTnWSq7RHsCmqQru8wQ1voLirZzkalDQtSprccu");
     Parse.serverURL = 'https://parseapi.back4app.com/';
 
-    // Function to load watermelon data from Parse and display it in the table
     async function loadWatermelonData() {
       const Watermelon = Parse.Object.extend('Watermelon');
       const query = new Parse.Query(Watermelon);
@@ -325,9 +369,7 @@
       }
     }
 
-    loadWatermelonData(); // Call this function on page load to populate the table with data from Parse
-
-    // ...the rest of your script for handling form submissions and chart updates...
+    loadWatermelonData(); 
   </script>
 </body>
 </html>

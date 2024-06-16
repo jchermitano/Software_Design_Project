@@ -86,10 +86,24 @@
     tr {
       background-color: #9DDE8B;
     }
+    header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px;
+            width: 96%;
+            padding-right: -10pc;
+        }
+        header a {
+            color: white;
+            text-decoration: none; 
+            font-size: 3ch;
+        }
   </style>
 </head>
 <body>
-  <h1>Watermelon Ripeness Result</h1>
+  <header>
+    <a href="index.html" class="reload">Watermelon Ripeness Result</a>
+  </header>
   <form id="watermelon-form">
     <div>
       <label for="variety">Variety:</label>
@@ -109,6 +123,7 @@
       </select>
     </div>
     <button type="submit">Submit</button>
+    <button type="submit">Import CSV</button>
   </form>
   <div class="table-container">
     <table id="watermelon-table">
@@ -296,6 +311,12 @@
 
     // Call fetchAndDisplayCharts to load and display the charts when the page is loaded
     fetchAndDisplayCharts();
+  </script>
+  <script>
+    function reload() {
+            // Redirect back to the login page (replace 'index.html' with your actual login page)
+            window.location.href = 'index.html';
+        }
   </script>
   <script>
     // Initial Setup for Parse
